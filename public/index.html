@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <div id="app">
+            <span style="color: red; background: #000">ppaa {{popo}} 9nn</span>
+            <p>{{app}}</p>
+            <p>{{demo.ll}}</p>
+            <my-component></my-component>
+        </div>
+    </body>
+    <script src="../dist/vue.js"></script>
+    <script>
+        Vue.component('my-component2', {
+            template:
+                '<span style="color: red; background: #000">我是二号组件</span>'
+        })
+        const vm = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    popo: 'mini',
+                    demo: {
+                        ll: [123, 456, 789],
+                        name: '888'
+                    },
+                    app: [1, 0, 2]
+                }
+            },
+            created() {
+                console.log('created 222')
+            },
+            beforeCreate() {
+                console.log('beforeCreate')
+            },
+            components: {
+                'my-component': {
+                    data(){
+                        return {
+                            bbb: '我是组件data'
+                        }
+                    },
+                    template: '<div>{{bbb}}</div>'
+                }
+            }
+        })
+        console.log(vm)
+        setTimeout(function () {
+            vm.popo = '我改变了'
+            vm.demo.ll.push(110)
+            vm.app.push(9)
+            // vm._update(vm._render())
+        }, 3000)
+    </script>
+</html>
