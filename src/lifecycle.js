@@ -28,6 +28,12 @@ export function lifeCycleMixin(Vue) {
 
 export function mountComponent(vm, el) {
     // 实现页面的挂载流程
+    // 这里是针对真实DOM的挂载必须要有一个载体
+    /* 
+    而组件的el其实是空的  那么载体是谁?其实不需要载体，因为始终会有一个入口载体
+    而组件的创建是在入口内部的children中生成的，只需要把生成的那个组件节点返回
+    而在创建流程中会自动append进去  达到挂载的效果
+    */
     vm.$el = el // 把el挂载到实例上
 
     const updateComponent = function () {
