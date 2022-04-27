@@ -18,7 +18,6 @@ export function createElement(vm, tag, data = {}, ...children) {
 }
 
 function createComponent(vm, tag, data, key, children, Ctor) {
-    console.log(191919, Ctor)
     if (isObject(Ctor)) {
         Ctor = vm.$options._base.extend(Ctor)
     }
@@ -54,7 +53,6 @@ export function createTextNode(text) {
 }
 
 function vnode(tag, data, children, key, text, componentOptions) {
-    console.log(292929, componentOptions)
     return {
         tag,
         data,

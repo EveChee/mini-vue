@@ -7,7 +7,7 @@ export function lifeCycleMixin(Vue) {
         return createElement(this,...arguments)
     }
     Vue.prototype._v = function () {
-        return createTextNode(this,...arguments)
+        return createTextNode(...arguments)
     }
     Vue.prototype._s = function (value) {
         // 将数据转换成符号

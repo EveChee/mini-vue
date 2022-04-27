@@ -40,12 +40,23 @@
             },
             components: {
                 'my-component': {
-                    data(){
+                    data() {
                         return {
                             bbb: '我是组件data'
                         }
                     },
-                    template: '<div>{{bbb}}</div>'
+                    template:
+                        '<p>{{bbb}} <child-component></child-component></p>',
+                    components: {
+                        'child-component': {
+                            data() {
+                                return {
+                                    bbb: '我是嵌套组件data'
+                                }
+                            },
+                            template: '<span>{{bbb}}</div>'
+                        }
+                    }
                 }
             }
         })
