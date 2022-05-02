@@ -22,6 +22,7 @@ export function lifeCycleMixin(Vue) {
     Vue.prototype._update = function (vnode) {
         const vm = this
         // 初始化渲染 后续更新也走patch
+        // 根据是否有_vnode来识别是否是第一次渲染 如果不是 则进入diff
         vm.$el = patch(vm._vnode || vm.$el, vnode)
     }
 }

@@ -238,6 +238,15 @@ function updateChildren(parent, oldChildren, children) {
             }
         }
     }
+
+    /* 
+    为什么不要用index做key？
+    因为 index是不变的 就会导致什么呢  key相等 标签相等  就会复用当前元素 然后去比对属性和子元素
+    然后对内部进行更新  比如 a b c d | b d c a 
+    那么会复用并且把a更新成b  b 更新成d .....
+    但是如果key不是index  则只需要判断对应项的位置移动就可以了
+    而不需要对每个dom都做变更
+    */
 }
 
 function makeIndexByKey(children) {
