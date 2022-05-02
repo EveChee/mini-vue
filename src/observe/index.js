@@ -51,7 +51,6 @@ function defineReactive(data, key, value) {
                 if (childOb) {
                     // 收集可能是数组的依赖 不做区分 因为已经有依赖去重
                     childOb.dep.depend()
-                    console.log(292929, value)
                     /* 如果数组中还有数组 
                     如果数组里面是对象不用单独处理 
                     但是如果是多维数组 就要处理*/

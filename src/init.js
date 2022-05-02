@@ -6,7 +6,6 @@ import { nextTick } from './utils/next-tick'
 export default function initMixin(Vue) {
     Vue.prototype._init = function (options) {
         const vm = this
-        console.log(1990000000, vm.constructor.options, options)
         vm.$options = mergeOptions(vm.constructor.options, options)
         // 后续所有的扩展都有$options可以获取用户的所有选项
 
