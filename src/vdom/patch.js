@@ -140,9 +140,19 @@ function updateChildren(parent, oldChildren, children) {
     let oldEndVnode = oldChildren[oldEndIndex]
     let newStartVnode = children[newStartIndex]
     let newEndVnode = children[newEndIndex]
+
+    let map = makeIndexByKey(oldChildren)
+
     // 双指针比对
     while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
         // 在比对过程中 新老节点任意一方遍历结束 则结束比对
+        if (!oldStartVnode) {
+            /* 这里兼容老元素被复用置空的情况  */
+            oldStartVnode = oldChildren[++oldStartIndex]
+        } else if (!oldEndVnode) {
+            oldEndVnode = oldChildren[--oldEndIndex]
+        }
+
         if (isSameVNode(oldStartVnode, newStartVnode)) {
             //头头对比 如果是同一个节点 就对比内部的属性
             // 优化向后插入的情况
@@ -155,18 +165,59 @@ function updateChildren(parent, oldChildren, children) {
             patch(oldEndVnode, newEndVnode)
             oldEndVnode = oldChildren[--oldEndIndex]
             newEndVnode = children[--newEndIndex]
-        } else if(isSameVNode(oldStartVnode, newEndVnode)){
+        } else if (isSameVNode(oldStartVnode, newEndVnode)) {
             // 优化头移动到尾
             patch(oldStartVnode, newEndVnode)
             parent.insertBefore(oldStartVnode.el, oldEndVnode.el.nextSibling)
             oldStartVnode = oldChildren[++oldStartIndex]
             newEndVnode = children[--newEndIndex]
-        } else if(isSameVNode(oldEndVnode, newStartVnode)){
+        } else if (isSameVNode(oldEndVnode, newStartVnode)) {
             // 优化尾移动到头
             patch(oldEndVnode, newStartVnode)
             parent.insertBefore(oldEndVnode.el, oldStartVnode.el)
             oldEndVnode = oldChildren[--oldEndIndex]
             newStartVnode = children[++newStartIndex]
+        } else {
+            // 暴力对比乱序
+            // 先根据老节点的Key 做一个映射表 拿新节点的虚拟节点去映射表中查找 如果可以找到 则进行移动操作
+            // 移动到当前头指针的前面 如果找不到则直接插入
+            let moveIndex = map[newStartVnode.key]
+            if (!moveIndex) {
+                // 找不到映射  则不需要复用
+                // 则插入到当前老的开始指针的前面 因为用的老的节点做的映射表
+                parent.insertBefore(createElm(newStartVnode), oldStartVnode.el)
+            } else {
+                // 需要复用的情况
+                /* 
+                比如 oldChildren = [a,b,c,e]
+                newChildren = [q,a,f,c,n]
+                头头尾尾 交叉比对后发现q没有映射 无法复用  直接插入到当前老开始指针的前面也就是a
+                然后就变成了q' a b c e
+                q a f c n 
+                新开始指针往后移动 到a
+                这时触发头头复用 再同时把指针往后移动
+                就达到了 q' a' b c e
+                q a f c n
+                这时候f又进行插入
+                q' a' f' b c e
+                q a f c n
+                开始对比c  和 头b 不一样  和尾e 不一样
+                但是老节点里面是存在可以复用的c的
+                如果在映射表里面找到了复用元素  则直接将该元素移走 并且将该位置置空
+                但此时老节点的指针是不动的 只动新的指针
+                然后都对比完之后  如果老的还有剩 就全部删除
+                如果新的还有剩 就全部插入
+                */
+                let moveVnode = oldChildren[moveIndex]
+                // 这里就是需要复用移动的元素
+                oldChildren[moveIndex] = undefined
+                // 开始移动到当前开始指针的前面
+                parent.insertBefore(moveVnode.el, oldStartVnode.el)
+                // 然后比对内部属性
+                patch(moveVnode, newStartVnode)
+            }
+            newStartVnode = children[++newStartIndex]
+            // 这里是因为复用和复用都不针对老的开始节点  所以只前进新的指针
         }
     }
     if (newStartIndex <= newEndIndex) {
@@ -178,4 +229,24 @@ function updateChildren(parent, oldChildren, children) {
             parent.insertBefore(createElm(children[i]), el)
         }
     }
+    if (oldStartIndex <= oldEndIndex) {
+        // 如果老的开始和结束之间在一方遍历结束之后 还有元素 则全部直接删除
+        for (let i = oldStartIndex; i <= oldEndIndex; i++) {
+            const child = oldChildren[i]
+            if (child) {
+                parent.removeChild(child.el)
+            }
+        }
+    }
+}
+
+function makeIndexByKey(children) {
+    let map = {}
+    children.forEach((item, index) => {
+        if (item.key) {
+            map[item.key] = index
+            // 根据key 创建一个映射表
+        }
+    })
+    return map
 }

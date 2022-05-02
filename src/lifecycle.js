@@ -38,7 +38,6 @@ export function mountComponent(vm, el) {
 
     const updateComponent = function () {
         // 调用生成的render函数 获取虚拟节点 -> 生成真实dom
-        console.log('更新了')
         const vnode = vm._render()
         vm._update(vnode)
         vm._vnode = vnode
